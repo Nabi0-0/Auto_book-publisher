@@ -10,3 +10,4 @@ rich
 selenium==4.22.0
 selenium-stealth==1.0.6
 webdriver-manager==3.8.6    
+openai ==0.27.8
