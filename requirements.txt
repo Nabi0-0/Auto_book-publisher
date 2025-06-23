@@ -9,5 +9,4 @@ torch
 rich                     
 selenium==4.22.0
 selenium-stealth==1.0.6
-selenium-wire==5.0.1
 webdriver-manager==3.8.6    
