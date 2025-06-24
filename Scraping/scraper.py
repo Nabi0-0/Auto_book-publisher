@@ -21,7 +21,7 @@ def scrape_chapter(url, screenshot_path, text_path):
         browser.close()
 
 if __name__ == "__main__":
-    chapter_url = "https://en.wikisource.org/wiki/The_Gates_of_Morning/Book_1/Chapter_1"
+    chapter_url = input("Enter the chapter URL: ").strip()
     screenshot_file = "Scraping/screenshot/chapter1_screenshot.png"
     text_file = "outputs/raw_chapter1.txt"
     
