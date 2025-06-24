@@ -15,7 +15,7 @@ from version_store import store_version, persist_db
 
 def check_file_exists(path):
     if not os.path.exists(path):
-        print(f"❌ Required file not found: {path}")
+        print(f"Required file not found: {path}")
         return False
     return True
 
@@ -25,28 +25,20 @@ def run_pipeline(raw_path="outputs/raw_chapter1.txt",
                  final_path="outputs/chapter1_final_v1.txt", 
                  chapter_id="1"):
 
-    print("\n🚀 Starting Agentic Book Pipeline...")
-
-    # Step 1: Load raw text
-    print("📖 Loading raw chapter...")
+    print("\n Starting Agentic Book Pipeline...")
+    print("Loading raw chapter...")
     if not check_file_exists(raw_path):
         return
     raw_text = load_text(raw_path)
-
-    # Step 2: Spin with AI Writer
-    print("✍️ Spinning chapter with AI Writer...")
+    print("Spinning chapter with AI Writer...")
     spun_text = spin_text_with_llama(raw_text)
     save_text(spun_path, spun_text)
-    print(f"✅ Spun version saved to: {spun_path}")
-
-    # Step 3: Review with AI Reviewer
-    print("🧠 Reviewing spun text with AI Reviewer...")
+    print(f"Spun version saved to: {spun_path}")
+    print("Reviewing spun text with AI Reviewer...")
     reviewed_text = review_text_with_llama(spun_text)
     save_text(reviewed_path, reviewed_text)
-    print(f"✅ Reviewed version saved to: {reviewed_path}")
-
-    # Step 4: Human-in-the-loop interface
-    print("👤 Launching HITL interface for approval or edits...")
+    print(f"Reviewed version saved to: {reviewed_path}")
+    print("Launching HITL interface for approval or edits...")
     from HITL_interface import main as HITL_main
     HITL_main()
 
