@@ -10,7 +10,7 @@ class RLContentRetriever:
         self.client = chromadb.Client(Settings(persist_directory="storage/chroma_db", anonymized_telemetry=False))
         self.collection = self.client.get_or_create_collection(name=collection_name)
         self.embedding_model = SentenceTransformer(model_name)
-        self.rewards = {}  # key: id, value: reward score
+        self.rewards = {} 
 
     def _embed(self, text):
         return self.embedding_model.encode(text, convert_to_tensor=True).tolist()
@@ -26,7 +26,7 @@ class RLContentRetriever:
 
         docs = results["documents"][0]
         ids = results["ids"][0]
-        scores = results["distances"][0]  # cosine similarity
+        scores = results["distances"][0]  #cosine similarity
         epsilon = 0.2
         scored_results = []
         for doc, doc_id, sim_score in zip(docs, ids, scores):
@@ -37,13 +37,5 @@ class RLContentRetriever:
         return ranked[:top_k]
 
     def update_reward(self, doc_id, feedback):
-        # +1 for good feedback, -1 for bad
         self.rewards[doc_id] = self.rewards.get(doc_id, 0) + feedback
         print(f"Updated reward for {doc_id}: {self.rewards[doc_id]}")
-
-
-# Example Usage:
-# retriever = RLContentRetriever()
-# retriever.store_with_reward("ch1-v1", text, {"tag": "writer"}, reward=1)
-# results = retriever.search("hero fights dragon")
-# retriever.update_reward("ch1-v1", feedback=1)
