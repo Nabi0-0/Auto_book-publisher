@@ -39,6 +39,7 @@ ________________________________________________________________________________
 Install Dependencies
 
   pip install -r requirements.txt
+  
   playwright install
 
 ______________________________________________________________________________________________________________________________________________
@@ -46,23 +47,29 @@ ________________________________________________________________________________
 🔁 Run the Full Pipeline (CLI)
 
   python cli.py --url "https://en.wikisource.org/wiki/The_Gates_of_Morning/Book_1/Chapter_1" --chapter 1 (example url used)
+ 
   Or you can run and provide input interactively: python cli.py
 
 ______________________________________________________________________________________________________________________________________________
 
 🧠 Tech Stack
-  Python 3.10+
-  Playwright - Web scraping & screenshotting
-  LLMs - AI writing and reviewing (LLaMA/Gemini/etc.)
-  ChromaDB - For version control and search
-  Reinforcement Learning - RL-based document retrieval (optional)
+
+  1. Python 3.10+
+  2. Playwright - Web scraping & screenshotting
+  3. LLMs - AI writing and reviewing (LLaMA/Gemini/etc.)
+  4. ChromaDB - For version control and search
+  5. Reinforcement Learning - RL-based document retrieval (optional)
 
 ______________________________________________________________________________________________________________________________________________
 
 ✅ TODO / Coming Soon
+
  Web UI Improvements
+ 
  Multi-chapter bulk publishing
+ 
  Advanced RL-based retrieval agent
+ 
  PDF/EPUB export
 ______________________________________________________________________________________________________________________________________________
 
