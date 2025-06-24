@@ -25,13 +25,11 @@ def manual_edit(content):
     return "\n".join(new_lines)
 
 def main():
-    print("Loading reviewed chapter for human-in-the-loop review...")
     if not os.path.exists(REVIEWED_PATH):
         print("Reviewed file not found. Please run reviewer.py first.")
         return
 
     content = load_text(REVIEWED_PATH)
-    print("\n Reviewed Chapter Preview:")
     print("-" * 60)
     print(content[:1000])  
     print("-" * 60)

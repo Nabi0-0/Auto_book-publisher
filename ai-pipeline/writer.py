@@ -1,12 +1,12 @@
 import os
 from dotenv import load_dotenv
-from openai import OpenAI  # This is the new import
+from openai import OpenAI 
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
 
 client = OpenAI(
     api_key=groq_api_key,
-    base_url="https://api.groq.com/openai/v1"  # Important: use Groq's endpoint
+    base_url="https://api.groq.com/openai/v1" 
 )
 def load_raw_text(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -33,10 +33,6 @@ Keep the events unchanged, but modernize the writing, improve clarity, pacing, a
 if __name__ == "__main__":
     input_path = "outputs/raw_chapter1.txt"
     output_path = "outputs/chapter1_spun_v1.txt"
-    #print("Loading raw chapter...")
     chapter = load_raw_text(input_path)
-    #print("Spinning with Groq LLaMA 3...")
     spun_version = spin_text_with_llama(chapter)
-    #print("Saving rewritten chapter...")
     save_spun_text(output_path, spun_version)
-    #print(f"✅ AI-spun chapter saved to: {output_path}")

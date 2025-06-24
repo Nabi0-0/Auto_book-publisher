@@ -39,11 +39,6 @@ Make the final version feel natural, like it was written by a human author."""
 if __name__ == "__main__":
     input_path = "outputs/chapter1_spun_v1.txt"
     output_path = "outputs/chapter1_reviewed_v1.txt"
-
-    #print("🔍Loading AI-spun chapter...")
     spun_text = load_text(input_path)
-    #print("🧠Reviewing with AI Reviewer...")
     reviewed_text = review_text_with_llama(spun_text)
-    #print("💾Saving reviewed version...")
     save_text(output_path, reviewed_text)
-    #print(f"✅Reviewed chapter saved to: {output_path}")
