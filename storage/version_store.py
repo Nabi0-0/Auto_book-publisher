@@ -21,5 +21,9 @@ def store_version(chapter_id, version_tag, file_path):
     print(f"Stored version: Chapter {chapter_id} - {version_tag}")
 
 def persist_db():
-    client.persist()
-    print("ChromaDB changes persisted.")
+    if hasattr(client, "persist"):
+        client.persist()
+        print("ChromaDB persisted manually.")
+    else:
+        print("ChromaDB does not require manual persist.")
+
