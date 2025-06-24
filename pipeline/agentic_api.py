@@ -2,11 +2,13 @@ import os
 import sys
 sys.path.append("Scraping")
 sys.path.append("ai-pipeline")
+sys.path.append("storage")
 
 from writer import spin_text_with_llama
 from dotenv import load_dotenv
 from reviewer import review_text_with_llama
 from HITL_interface import load_text, save_text, manual_edit
+from version_store import store_version, persist_db
 
 RAW_PATH = "outputs/raw_chapter1.txt"
 SPUN_PATH = "outputs/chapter1_spun_v1.txt"
@@ -41,6 +43,12 @@ def run_pipeline():
         print(f"\n Pipeline complete. Final approved file: {FINAL_PATH}")
     else:
         print("\n Pipeline ended without approval. Check HITL edits or retry.")
+    
+    store_version(chapter_id="1", version_tag="writer", file_path=SPUN_PATH)
+    store_version(chapter_id="1", version_tag="reviewer", file_path=REVIEWED_PATH)
+    store_version(chapter_id="1", version_tag="final", file_path=FINAL_PATH)
+
+    persist_db()
 
 if __name__ == "__main__":
     run_pipeline()

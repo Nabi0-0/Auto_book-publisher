@@ -1,48 +1,25 @@
 import os
+import uuid
 import chromadb
-from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
 
-CHROMA_DIR = "./chroma_db"
-client = chromadb.Client(Settings(
-    chroma_db_impl="duckdb+parquet",
-    persist_directory=CHROMA_DIR
-))
+client = chromadb.PersistentClient(path="./chroma_db")
+collection = client.get_or_create_collection(name="book_versions")
 
-collection = client.get_or_create_collection(name="chapter_versions")
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
-def load_text(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return f.read()
-
-
+model = SentenceTransformer("all-MiniLM-L6-v2")
 def store_version(chapter_id, version_tag, file_path):
-    content = load_text(file_path)
-    embedding = embedder.encode(content).tolist()
-    doc_id = f"{chapter_id}_{version_tag}"
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    embedding = model.encode(content).tolist()
+
     collection.add(
+        ids=[str(uuid.uuid4())],
         documents=[content],
-        ids=[doc_id],
-        metadatas=[{
-            "chapter": chapter_id,
-            "version": version_tag,
-            "source_file": file_path
-        }],
+        metadatas=[{"chapter_id": chapter_id, "version": version_tag}],
         embeddings=[embedding]
     )
-    print(f"Stored: {doc_id} in ChromaDB")
-
-
-def search_similar(text, top_k=3):
-    embedding = embedder.encode(text).tolist()
-    results = collection.query(query_embeddings=[embedding], n_results=top_k)
-    return results
-
-
-def get_all_versions(chapter_id):
-    # Query for all versions of a chapter
-    results = collection.get(where={"chapter": chapter_id})
-    return results
+    print(f"Stored version: Chapter {chapter_id} - {version_tag}")
 
 def persist_db():
     client.persist()
+    print("ChromaDB changes persisted.")
