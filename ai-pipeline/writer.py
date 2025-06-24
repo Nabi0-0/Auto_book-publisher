@@ -33,7 +33,6 @@ Keep the events unchanged, but modernize the writing, improve clarity, pacing, a
 if __name__ == "__main__":
     input_path = "outputs/raw_chapter1.txt"
     output_path = "outputs/chapter1_spun_v1.txt"
-
     #print("Loading raw chapter...")
     chapter = load_raw_text(input_path)
     #print("Spinning with Groq LLaMA 3...")
