@@ -34,8 +34,6 @@ def run_pipeline():
     reviewed_text = review_text_with_llama(spun_text)
     save_text(REVIEWED_PATH, reviewed_text)
     print(f"Reviewed version saved to: {REVIEWED_PATH}")
-
-    #print("\n Launching HITL interface for approval or edits")
     from HITL_interface import main as HITL_main
     HITL_main()
 
