@@ -1,13 +1,13 @@
-playwright==1.43.0           
-chromadb==0.4.24
-tqdm==4.66.4
-pydantic==2.7.1
-python-dotenv==1.0.1
-langchain==0.2.1        
-transformers==4.41.0     # Optional: For local AI model support
-torch                    
-rich                     
-selenium==4.22.0
-selenium-stealth==1.0.6
-webdriver-manager==3.8.6    
-openai ==0.27.8
+
+# Web scraping
+playwright==1.43.0
+
+# Vector database and semantic embeddings
+chromadb==1.5.3
+sentence-transformers==5.7.0
+
+# LLM API integration
+openai>=1.0.0,<4.0.0
+
+# Configuration
+python-dotenv>=1.0.0,<2.0.0

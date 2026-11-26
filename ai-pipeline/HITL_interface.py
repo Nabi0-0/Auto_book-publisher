@@ -1,60 +1,58 @@
-import os
-import shutil
-REVIEWED_PATH = "outputs/chapter1_reviewed_v1.txt"
-FINAL_PATH = "outputs/chapter1_final_v1.txt"
-MANUAL_EDIT_PATH = "outputs/chapter1_reviewed_edit.txt"
 
-def load_text(path):
-    with open(path, 'r', encoding='utf-8') as f:
-        return f.read()
-
-def save_text(path, content):
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write(content)
-
-def manual_edit(content):
-    print("\n Manual Edit Mode")
-    print("Enter your full updated version below. Finish input with a line containing only `END`.")
+def manual_edit(content: str) -> str:
+    print("\nManual Edit Mode")
+    print("Enter your complete edited version.")
+    print("Finish with a line containing only END.")
     print("-" * 60)
-    new_lines = []
+
+    lines = []
+
     while True:
         line = input()
+
         if line.strip() == "END":
             break
-        new_lines.append(line)
-    return "\n".join(new_lines)
 
-def main():
-    if not os.path.exists(REVIEWED_PATH):
-        print("Reviewed file not found. Please run reviewer.py first.")
-        return
+        lines.append(line)
 
-    content = load_text(REVIEWED_PATH)
+    updated_content = "\n".join(lines).strip()
+
+    if not updated_content:
+        raise ValueError("Edited chapter cannot be empty.")
+
+    return updated_content
+
+
+def get_human_decision(
+    reviewed_text: str,
+    allow_rewrite: bool = True,
+) -> tuple[str, str]:
+    if not isinstance(reviewed_text, str) or not reviewed_text.strip():
+        raise ValueError("Reviewed chapter cannot be empty.")
+
+    print("\n" + "-" * 60)
+    print(reviewed_text[:1500])
     print("-" * 60)
-    print(content[:1000])  
-    print("-" * 60)
-    print("\nChoose an action:")
-    print("[1] Approve and Save as Final")
-    print("[2] Manually Edit and Save")
-    print("[3] Request Rewrite (return to writer)")
-    choice = input("Enter option number (1/2/3): ").strip()
 
-    if choice == "1":
-        shutil.copy(REVIEWED_PATH, FINAL_PATH)
-        print(f"Chapter approved and saved as: {FINAL_PATH}")
+    while True:
+        print("[1] Approve chapter")
+        print("[2] Manually edit chapter")
+        if allow_rewrite:
+            print("[3] Request rewrite")
+        print("[4] Cancel")
 
-    elif choice == "2":
-        updated = manual_edit(content)
-        save_text(MANUAL_EDIT_PATH, updated)
-        print(f"Edited version saved to: {MANUAL_EDIT_PATH}")
-        print("You can now rerun reviewer.py with this version if needed.")
+        choice = input("Enter option number (1/2/3/4): ").strip()
 
-    elif choice == "3":
-        print("Send the original input again through writer.py with updated tone or config.")
-        print("Tip: Update prompts or try different model settings in writer.py.")
+        if choice == "1":
+            return "approve", reviewed_text
 
-    else:
-        print("Invalid input. Exiting.")
+        if choice == "2":
+            return "edit", manual_edit(reviewed_text)
 
-if __name__ == "__main__":
-    main()
+        if choice == "3" and allow_rewrite:
+            return "rewrite", reviewed_text
+
+        if choice == "4":
+            return "cancel", reviewed_text
+
+        print("Invalid choice. Please select 1, 2, 3, or 4.")

@@ -1,44 +1,110 @@
-import os
-from dotenv import load_dotenv
-from openai import OpenAI
-load_dotenv()
-groq_api_key = os.getenv("GROQ_API_KEY")
-
-client = OpenAI(
-    api_key=groq_api_key,
-    base_url="https://api.groq.com/openai/v1"
+from llm_client import (
+    GROQ_MODEL,
+    MAX_COMPLETION_TOKENS,
+    REASONING_EFFORT,
+    get_groq_client,
 )
 
-def load_text(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return f.read()
+def check_source_fidelity(original_text: str, draft_text: str) -> str:
+    if not isinstance(original_text, str) or not original_text.strip():
+        raise ValueError("Original chapter cannot be empty.")
 
-def save_text(file_path, content):
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
+    if not isinstance(draft_text, str) or not draft_text.strip():
+        raise ValueError("Draft chapter cannot be empty.")
 
-def review_text_with_llama(spun_text, tone="natural and polished"):
-    system_prompt = f"""You are an experienced book editor. Your task is to review and refine AI-generated rewritten chapters.
-Keep the story structure, events, and pacing the same, but:
-- Fix any awkward phrasing
-- Smooth out transitions
-- Improve clarity and readability
-- Maintain a {tone} tone without over-editing
-Make the final version feel natural, like it was written by a human author."""
+    client = get_groq_client()
+
     response = client.chat.completions.create(
-        model="llama3-8b-8192", 
+        model=GROQ_MODEL,
+        messages=[
+            {
+                "role": "system",
+                "content": """You are a strict source-fidelity auditor.
+Compare the draft against the original chapter.
+
+Check for:
+- Meaningful source events, facts, descriptions, relationships, or dialogue omitted
+  from the draft.
+- Events, facts, descriptions, relationships, or dialogue added without support
+  from the source.
+- Changes that alter the source's meaning or sequence.
+
+Do not flag harmless wording changes or stylistic paraphrasing.
+
+Return exactly one of:
+PASS
+FLAG: followed by a concise list of the most important omissions or unsupported additions.
+
+Be conservative: flag only clear, meaningful fidelity problems.""",
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"ORIGINAL CHAPTER:\n{original_text}\n\n"
+                    f"DRAFT CHAPTER:\n{draft_text}"
+                ),
+            },
+        ],
+        max_completion_tokens=MAX_COMPLETION_TOKENS,
+        reasoning_effort=REASONING_EFFORT,
+    )
+
+    result = response.choices[0].message.content
+
+    if not result or not result.strip():
+        raise RuntimeError("The fidelity checker returned an empty response.")
+
+    return result.strip()
+
+def review_text_with_llama(
+    original_text: str,
+    draft_text: str,
+    tone: str = "natural and polished",
+) -> str:
+    if not isinstance(original_text, str) or not original_text.strip():
+        raise ValueError("Original chapter cannot be empty.")
+
+    if not isinstance(draft_text, str) or not draft_text.strip():
+        raise ValueError("Text to review cannot be empty.")
+
+    client = get_groq_client()
+
+    system_prompt = f"""You are an experienced book editor.
+Revise the draft using the original chapter as the source of truth.
+
+Requirements:
+- Preserve the original story structure, events, characters, and relationships.
+- Do not add events, details, dialogue, character traits, or descriptions that are
+  not supported by the original chapter.
+- If the draft contains unsupported details, remove them or correct them using
+  only information from the original.
+- Do not remove meaningful source information.
+- Fix awkward phrasing and grammatical errors.
+- Improve transitions, clarity, and readability.
+- Maintain a {tone} tone without over-editing.
+- Return only the revised chapter."""
+
+    response = client.chat.completions.create(
+        model=GROQ_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": spun_text}
+            {
+                "role": "user",
+                "content": (
+                    "ORIGINAL CHAPTER:\n"
+                    f"{original_text}\n\n"
+                    "DRAFT TO REVIEW:\n"
+                    f"{draft_text}"
+                ),
+            },
         ],
-        temperature=0.7,
-        max_tokens=2048
+        max_completion_tokens=MAX_COMPLETION_TOKENS,
+        reasoning_effort=REASONING_EFFORT,
     )
-    return response.choices[0].message.content.strip()
 
-if __name__ == "__main__":
-    input_path = "outputs/chapter1_spun_v1.txt"
-    output_path = "outputs/chapter1_reviewed_v1.txt"
-    spun_text = load_text(input_path)
-    reviewed_text = review_text_with_llama(spun_text)
-    save_text(output_path, reviewed_text)
+    reviewed_text = response.choices[0].message.content
+
+    if not reviewed_text or not reviewed_text.strip():
+        raise RuntimeError("The reviewer returned an empty response.")
+
+    return reviewed_text.strip()
